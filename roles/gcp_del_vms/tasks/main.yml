@@ -1,0 +1,6 @@
+---
+
+# Deleting of Provisioned VM
+- name: Delete vm
+  shell: gcloud compute instances delete {{ vm }} --zone {{load_vm_zone}} --quiet
+  register: gcloud_result

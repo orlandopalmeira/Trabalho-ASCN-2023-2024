@@ -1,0 +1,42 @@
+---
+# Deployment for deploying Laravel app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel
+  namespace: default
+  labels:
+    app: laravel
+spec:
+  replicas: {{ l_reps }} #2 "laravel_replicas"
+  selector:
+    matchLabels:
+      app: laravel
+  template:
+    metadata:
+      labels:
+        app: laravel
+    spec:
+      containers:
+      - name: laravel
+        image: orlandopalmeira/laravelio:latest
+        env:
+        - name: DB_CONNECTION
+          value: "{{ db_connection }}"
+        - name: DB_HOST
+          value: "{{ db_host }}"
+        - name: DB_DATABASE
+          value: "{{ db_database }}"
+        - name: DB_USERNAME
+          value: "{{ db_username }}"
+        - name: DB_PASSWORD
+          value: "{{ db_password }}"
+        # - name: seed_db
+        #   value: "{{ seed_database }}"
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "150m"
+          # limits:
+          #   cpu: "800m"

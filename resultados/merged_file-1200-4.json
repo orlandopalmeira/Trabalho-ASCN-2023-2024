@@ -1,0 +1,11 @@
+{
+  "Total": {
+    "transaction": "Total",
+    "sampleCount": 1200,
+    "errorCount": 0,
+    "meanResTime": 6019.148333333335,
+    "minResTime": 1106.0,
+    "maxResTime": 11739.0,
+    "throughput": 17.529691572571746
+  }
+}

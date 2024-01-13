@@ -1,0 +1,64 @@
+---
+##* Para instalar o java e o JMETER em cada maquina virtual criada pelo GCP e executar os testes
+
+# Instalação de JAVA
+- name: Check if Java is installed 
+  command: java --version
+  ignore_errors: true
+  register: java_check
+
+- name: Update package manager cache # sudo apt update
+  apt:
+    update_cache: yes
+  become: yes
+  when: java_check.rc != 0  # Only run when Java is not installed
+
+- name: Install Java 11 # sudo apt install openjdk-11-jdk
+  apt:
+    name: openjdk-11-jdk
+    state: present
+  become: yes
+  when: java_check.rc != 0  # Only run when Java is not installed
+
+
+# Instalação de JMETER
+- name: Check if Jmeter is installed
+  stat:
+    path: "{{ jmeter_path }}"
+  register: jmeter_check
+
+- name: Create a directory for JMeter installation
+  file:
+    path: /opt/apache-jmeter
+    state: directory
+    mode: '0755'
+  become: yes
+  when: jmeter_check.stat.exists == false
+
+- name: Download Apache JMeter binary archive
+  get_url:
+    url: "https://dlcdn.apache.org/jmeter/binaries/apache-jmeter-5.5.tgz"
+    dest: "/opt/apache-jmeter/apache-jmeter-5.5.tgz"
+  become: yes
+  when: jmeter_check.stat.exists == false
+
+- name: Extract Apache JMeter binary archive
+  ansible.builtin.unarchive:
+    src: "/opt/apache-jmeter/apache-jmeter-5.5.tgz"
+    dest: "/opt/"
+    remote_src: yes
+  become: yes
+  when: jmeter_check.stat.exists == false
+
+- name: Remove Apache JMeter binary archive
+  file:
+    path: "/opt/apache-jmeter"
+    state: absent
+  become: yes
+  when: jmeter_check.stat.exists == false
+
+- name: Create results directory
+  file:
+    path: results
+    state: directory
+    mode: '0777'

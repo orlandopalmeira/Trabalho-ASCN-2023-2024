@@ -1,0 +1,6 @@
+---
+vm: vm0
+
+machine_type: e2-small # 2 vCPUs, 2 GB de memória
+# machine_type: e2-standard-2 # 2 vCPUs, 8 GB de memória
+# machine_type: e2-standard-4 # 4 vCPUs, 16 GB de memória

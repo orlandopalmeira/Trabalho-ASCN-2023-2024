@@ -1,0 +1,135 @@
+---
+- name: Deploy the MySql Persistent Volume Claim
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/mysql-pv-claim.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+
+- name: Deploy the MySql Service
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/mysql-service.yml') }}"
+
+- name: Deploy the Laravel Service
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/laravel-service.yml') }}"
+
+
+- name: Deploy the MySql Deployment
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/mysql-deployment.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+    wait_condition:
+      status: "True"
+      type: Available
+
+#########> Wait for the mysql to be fully ready
+
+- name: Search for a pod with label app=mysql
+  kubernetes.core.k8s_info:
+    kind: Pod
+    label_selectors:
+      - app = mysql
+  register: pod_mysql
+  until: pod_mysql.resources[0].status.phase == "Running"
+  retries: 20
+  delay: 5
+
+- name: Print the name of the MySql pod 
+  debug: msg="{{ pod_mysql.resources[0].metadata.name }}"
+
+- name: Execute mysqladmin ping to check status of bd
+  command: "kubectl exec -it {{ pod_mysql.resources[0].metadata.name }} -- mysqladmin ping"
+  register: result_db_status
+  until: result_db_status.rc == 0
+  retries: 20
+  delay: 5 
+
+############>
+
+- name: Deploy the Laravel Deployment
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/laravel-deployment.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+    wait_condition:
+      status: "True"
+      type: Available
+
+#########> Only when seed_database == "true"
+- name: Search for a pod with label app=laravel
+  kubernetes.core.k8s_info:
+    kind: Pod
+    label_selectors:
+      - app = laravel
+  register: pod_laravel
+  when: seed_database == "true" 
+
+- debug: msg="{{ pod_laravel.resources[0].metadata.name }}"
+  when: seed_database == "true" 
+
+# Com o k8s_exec dava um problema de versões de Python
+- name: Execute php artisan db:seed using kubectl exec
+  command: 'kubectl exec -it {{ pod_laravel.resources[0].metadata.name }} -- php artisan migrate --seed'
+  register: result_seed
+  until: result_seed.rc == 0
+  retries: 5 # 30
+  delay: 5
+  when: seed_database == "true" 
+
+# - name: Print stdout of the command #! Debug
+#   debug:
+#     var: result_seed.stdout_lines
+#   when: seed_database == "true"
+#########>
+
+- name: Wait for external IP address
+  kubernetes.core.k8s_info:
+    kind: Service
+    namespace: default
+    label_selectors:
+      - "app=laravel"
+  register: service_info
+  # until: service_info.resources[0].status.loadBalancer.ingress[0].ip is defined #! Testar com esta condição
+  until: service_info.resources[0].status.loadBalancer | length > 0
+  retries: 60
+  delay: 5
+
+- name: Atribuição do IP à variável app_ip
+  set_fact:
+    app_ip: "{{ service_info.resources[0].status.loadBalancer.ingress[0].ip }}"
+
+- name: Display access IP address
+  debug:
+    var: app_ip
+
+- name: Alteração do valor da variável app_ip no ficheiro gcp.yml
+  replace:
+    path: group_vars/all/all.yml
+    regexp: "app_ip:.+"
+    replace: "app_ip: '{{ app_ip }}'"
+
+- name: Deploy the Laravel hpa
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'templates/laravel-hpa.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+  tags: ['hpa']
+
+
+
+
+#! Ingress ficaria aqui sabendo o app_ip
+# - name: Deploy the Laravel Ingress
+#   kubernetes.core.k8s:
+#     state: present
+#     definition: "{{ lookup('template', 'templates/laravel-ingress.yml') }}"
+#     wait: yes
+#     wait_timeout: 300 # 5 minutos
+#   tags: ['ing']

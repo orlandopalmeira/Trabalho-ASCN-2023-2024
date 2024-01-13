@@ -1,0 +1,22 @@
+---
+# apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2 # for cpu utilization use this api version
+kind: HorizontalPodAutoscaler
+metadata:
+  name: laravel-hpa
+  namespace: default
+spec:
+  minReplicas: 1
+  maxReplicas: 5
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: laravel
+  # stabilizationWindowSeconds: 30
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75

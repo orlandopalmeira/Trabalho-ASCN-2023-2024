@@ -1,0 +1,7 @@
+---
+# JMeter binary path
+jmeter_path: /opt/apache-jmeter-5.5/bin/jmeter
+
+# JMX files
+login_load: load_login.jmx
+register_load: load_register.jmx

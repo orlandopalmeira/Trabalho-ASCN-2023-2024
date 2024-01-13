@@ -1,0 +1,55 @@
+---
+
+- name: Undeploy the MySql Service
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/mysql-service.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+
+- name: Undeploy the MySql Deployment
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/mysql-deployment.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+
+- name: Undeploy the Laravel Service
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/laravel-service.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+
+- name: Undeploy the Laravel hpa
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/laravel-hpa.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+  tags: ['hpa']
+
+- name: Undeploy the Laravel Deployment
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/laravel-deployment.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+
+- name: Undeploy the MySql Persistent Volume Claim
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('template', 'templates/mysql-pv-claim.yml') }}"
+    wait: yes
+    wait_timeout: 300 # 5 minutos
+  tags: ['pvc'] # ansible-playbook laravelio-undeploy.yml --skip-tags pvc
+
+
+
+# - name: Undeploy the Laravel Ingress
+#   kubernetes.core.k8s:
+#     state: absent
+#     definition: "{{ lookup('template', 'templates/laravel-ingress.yml') }}"
+#     wait: yes
+#     wait_timeout: 300 # 5 minutos
+#   tags: ['ing']

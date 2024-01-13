@@ -1,0 +1,40 @@
+---
+# GKE cluster variables
+gcp_project: future-lane-391310              # ID of GCP Project
+gcp_auth_kind: serviceaccount            # Do not change
+gcp_cred_file: inventory/future-lane-391310-9d57d164b1ee.json    # Path to service account keys (json file downloaded from GCP)
+
+gcp_zone: us-central1-a
+gcp_image_type: ubuntu_containerd
+# gcp_machine_type: e2-small      # 2 vCPUs, 2 GB de memória
+gcp_machine_type: e2-standard-2 # 2 vCPUs, 8 GB de memória
+# gcp_machine_type: e2-standard-4 # 4 vCPUs, 16 GB de memória
+# gcp_machine_type: e2-standard-8 # 8 vCPUs, 32 GB de memória
+gcp_disk_size_gb: 100                # Can be changed if necessary
+gcp_initial_node_count: 3 
+
+
+# APP variables
+app_ip: <APP_SERVICE_IP>
+app_port: 80
+
+# Shared Laravel database settings
+db_connection: mysql
+db_host: mysql-service
+db_database: laravel
+
+seed_database: "true"
+# seed_database: "false" 
+
+
+## Secrets
+# app_username: testing
+# app_password: password
+# db_username: testing
+# db_password: password
+
+## Load VM vars
+num_vms: 8
+load_vm_zone: us-east1-b
+# load_vm_zone: us-central1-a
+

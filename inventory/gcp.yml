@@ -1,0 +1,9 @@
+---
+plugin: gcp_compute
+projects:
+  - future-lane-391310
+auth_kind: serviceaccount
+service_account_file: inventory/future-lane-391310-9d57d164b1ee.json
+groups:
+  gc_vms: "'vm' in (labels|list)"
+

@@ -1,0 +1,255 @@
+{
+  "dashboardFilters": [],
+  "displayName": "ASCN",
+  "labels": {},
+  "mosaicLayout": {
+    "columns": 48,
+    "tiles": [
+      {
+        "height": 16,
+        "widget": {
+          "title": "CPU Request % Used (Top 5 Pods)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "breakdowns": [],
+                "dimensions": [],
+                "legendTemplate": "${labels.resource\\.pod_name}",
+                "measures": [],
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "timeSeriesQuery": {
+                  "timeSeriesQueryLanguage": "fetch k8s_container\n| filter resource.project_id == 'future-lane-391310'\n&& resource.location == \"us-central1-a\"\n&& resource.cluster_name == \"ascn-cluster\"\n&& resource.namespace_name == \"default\"\n&& metadata.system_labels.top_level_controller_type == \"Deployment\"\n&& metadata.system_labels.top_level_controller_name == \"laravel\"\n| { metric kubernetes.io/container/cpu/core_usage_time\n     | rate\n     | every 1m\n     | align next_older(2m);\n    metric kubernetes.io/container/cpu/request_cores\n     | align next_older(2m)\n  }\n| group_by [resource.location, resource.cluster_name, resource.namespace_name, metadata.system_labels.top_level_controller_name, metadata.system_labels.top_level_controller_type, resource.pod_name], .sum()\n| outer_join 0\n| div\n| top 5\n| scale \"%\"",
+                  "unitOverride": ""
+                }
+              }
+            ],
+            "thresholds": []
+          }
+        },
+        "width": 24,
+        "yPos": 8
+      },
+      {
+        "height": 8,
+        "widget": {
+          "scorecard": {
+            "blankView": {},
+            "thresholds": [],
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_RATE"
+                },
+                "filter": "metric.type=\"kubernetes.io/container/cpu/core_usage_time\" resource.type=\"k8s_container\" resource.label.\"namespace_name\"=\"default\" resource.label.\"container_name\"=\"laravel\"",
+                "secondaryAggregation": {
+                  "alignmentPeriod": "60s",
+                  "crossSeriesReducer": "REDUCE_COUNT",
+                  "groupByFields": [],
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          },
+          "title": "Number of Laravel Replicas"
+        },
+        "width": 10,
+        "xPos": 3
+      },
+      {
+        "height": 8,
+        "widget": {
+          "scorecard": {
+            "blankView": {},
+            "thresholds": [],
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "groupByFields": [],
+                  "perSeriesAligner": "ALIGN_MEAN"
+                },
+                "filter": "metric.type=\"compute.googleapis.com/instance/cpu/utilization\" resource.type=\"gce_instance\" metadata.user_labels.\"goog-k8s-cluster-name\"=\"ascn-cluster\""
+              }
+            }
+          },
+          "title": "VM Instance - CPU utilization for ascn-cluster [MEAN]"
+        },
+        "width": 13,
+        "xPos": 17
+      },
+      {
+        "height": 16,
+        "widget": {
+          "title": "VM Instance - CPU utilization for ascn-cluster [MEAN]",
+          "xyChart": {
+            "chartOptions": {
+              "mode": "COLOR"
+            },
+            "dataSets": [
+              {
+                "breakdowns": [],
+                "dimensions": [],
+                "measures": [],
+                "minAlignmentPeriod": "60s",
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "aggregation": {
+                      "alignmentPeriod": "60s",
+                      "perSeriesAligner": "ALIGN_MEAN"
+                    },
+                    "filter": "metric.type=\"compute.googleapis.com/instance/cpu/utilization\" resource.type=\"gce_instance\" metadata.user_labels.\"goog-k8s-cluster-name\"=\"ascn-cluster\""
+                  }
+                }
+              }
+            ],
+            "thresholds": [],
+            "timeshiftDuration": "0s",
+            "yAxis": {
+              "label": "y1Axis",
+              "scale": "LINEAR"
+            }
+          }
+        },
+        "width": 24,
+        "yPos": 24
+      },
+      {
+        "height": 16,
+        "widget": {
+          "title": "VM Memory Used for ascn-cluster [MEAN]",
+          "xyChart": {
+            "chartOptions": {
+              "mode": "COLOR"
+            },
+            "dataSets": [
+              {
+                "breakdowns": [],
+                "dimensions": [],
+                "measures": [],
+                "minAlignmentPeriod": "60s",
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "aggregation": {
+                      "alignmentPeriod": "60s",
+                      "perSeriesAligner": "ALIGN_MEAN"
+                    },
+                    "filter": "metric.type=\"compute.googleapis.com/instance/memory/balloon/ram_used\" resource.type=\"gce_instance\" metadata.user_labels.\"goog-k8s-cluster-name\"=\"ascn-cluster\""
+                  }
+                }
+              }
+            ],
+            "thresholds": [],
+            "timeshiftDuration": "0s",
+            "yAxis": {
+              "label": "y1Axis",
+              "scale": "LINEAR"
+            }
+          }
+        },
+        "width": 24,
+        "xPos": 24,
+        "yPos": 24
+      },
+      {
+        "height": 16,
+        "widget": {
+          "title": "Memory usage for ascn-cluster pods",
+          "xyChart": {
+            "chartOptions": {
+              "mode": "COLOR"
+            },
+            "dataSets": [
+              {
+                "minAlignmentPeriod": "60s",
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "aggregation": {
+                      "alignmentPeriod": "60s",
+                      "perSeriesAligner": "ALIGN_MEAN"
+                    },
+                    "filter": "metric.type=\"kubernetes.io/container/memory/used_bytes\" resource.type=\"k8s_container\" resource.label.\"cluster_name\"=\"ascn-cluster\" resource.label.\"namespace_name\"=\"default\""
+                  }
+                }
+              }
+            ],
+            "thresholds": [],
+            "yAxis": {
+              "label": "",
+              "scale": "LINEAR"
+            }
+          }
+        },
+        "width": 24,
+        "xPos": 24,
+        "yPos": 8
+      },
+      {
+        "height": 8,
+        "widget": {
+          "scorecard": {
+            "blankView": {},
+            "thresholds": [],
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "crossSeriesReducer": "REDUCE_SUM",
+                  "groupByFields": [],
+                  "perSeriesAligner": "ALIGN_MEAN"
+                },
+                "filter": "metric.type=\"compute.googleapis.com/instance/memory/balloon/ram_used\" resource.type=\"gce_instance\" metadata.user_labels.\"goog-k8s-cluster-name\"=\"ascn-cluster\""
+              }
+            }
+          },
+          "title": "VM Memory Used for ascn-cluster [SUM]"
+        },
+        "width": 12,
+        "xPos": 33
+      },
+      {
+        "height": 16,
+        "widget": {
+          "title": "CPU request utilization for laravel pods [MEAN]",
+          "xyChart": {
+            "chartOptions": {
+              "mode": "COLOR"
+            },
+            "dataSets": [
+              {
+                "minAlignmentPeriod": "60s",
+                "plotType": "LINE",
+                "targetAxis": "Y1",
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "aggregation": {
+                      "alignmentPeriod": "60s",
+                      "perSeriesAligner": "ALIGN_MEAN"
+                    },
+                    "filter": "metric.type=\"kubernetes.io/container/cpu/request_utilization\" resource.type=\"k8s_container\" resource.label.\"cluster_name\"=\"ascn-cluster\" resource.label.\"container_name\"=\"laravel\""
+                  }
+                }
+              }
+            ],
+            "thresholds": [],
+            "yAxis": {
+              "label": "",
+              "scale": "LINEAR"
+            }
+          }
+        },
+        "width": 24,
+        "xPos": 13,
+        "yPos": 40
+      }
+    ]
+  }
+}

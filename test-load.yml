@@ -1,0 +1,8 @@
+---
+# Playbook responsável por criar carga para a aplicação
+
+- name: Utiliza as VMs criadas para simular pedidos à aplicação
+  hosts: gc_vms
+  gather_facts: true
+  roles:
+    - role: test_load

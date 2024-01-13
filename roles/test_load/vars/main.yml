@@ -1,0 +1,16 @@
+---
+# JMeter binary path
+jmeter_path: /opt/apache-jmeter-5.5/bin/jmeter
+
+# JMX files
+load_base: tests/load_base.jmx
+load_forum: tests/load_forum.jmx
+
+# load_file: tests/load_base.jmx
+load_file: "{{ load_base }}"
+
+# Vars
+threads: 10
+iters: 15
+rampup: "false"
+# ansible-playbook test-load.yml -e "threads=10 iters=15"

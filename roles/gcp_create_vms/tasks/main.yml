@@ -1,0 +1,17 @@
+---
+- name: Criação da VM
+  shell: gcloud compute instances create {{ vm }} --machine-type {{machine_type}} --image-family ubuntu-2004-lts --image-project ubuntu-os-cloud --zone {{load_vm_zone}} --labels vm=load
+  register: gcloud_result
+
+# - name: Display gcloud result
+#   debug:
+#     var: gcloud_result
+
+- name: Extract external IP
+  set_fact:
+    external_ip: "{{ gcloud_result.stdout_lines[1].split()[4] }}"
+
+- name: IP da vm criada
+  debug:
+    var: external_ip
+

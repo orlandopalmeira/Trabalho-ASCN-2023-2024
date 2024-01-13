@@ -1,0 +1,16 @@
+---
+# Apenas testa a verificação de acesso ao site sem fazer redeploy
+
+- name: Tests
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - { role: test_laravelio/test_access, app_status_code: 200 }
+  tags: ['test2']
+
+- name: Tests
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - { role: test_laravelio/test_login }
+  tags: ['test3']

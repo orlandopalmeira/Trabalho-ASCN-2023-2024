@@ -1,0 +1,20 @@
+---
+- name: Reload Laravel app
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Take down laravel without destroying the data
+      command: ansible-playbook laravelio-undeploy.yml --skip-tags pvc
+      register: result
+
+    - name: Print the result from the previous command
+      debug:
+        var: result.stdout_lines
+
+    - name: Redeploy laravel
+      command: ansible-playbook laravelio-deploy.yml -e "seed_database=false"
+      register: result
+
+    - name: Print the result from the previous command
+      debug:
+        var: result.stdout_lines

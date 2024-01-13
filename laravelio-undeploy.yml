@@ -1,0 +1,10 @@
+---
+# Playbook to undeploy laravel.io and its component
+# TO DO
+- name: Execute the tasks in the directory lavarelioUndeploy
+  hosts: localhost
+  gather_facts: false # Por enquanto não são necessários os facts
+  roles:
+    - laravelio_undeploy
+  tags:
+    - laravelio_undeploy

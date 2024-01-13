@@ -1,0 +1,52 @@
+---
+- name: Create GCP VM Instances
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Create "num_vms" VMs
+      include_role:
+        name: gcp_create_vms
+      loop: "{{ range(num_vms|int) | list }}"
+      loop_control:
+        loop_var: item
+      vars:
+        vm: "vm{{ item }}"
+    
+    - name: Transfer jmx files inside ./tests directory to VMs
+      shell: gcloud compute scp --recurse tests/ vm{{ item }}:/home/vagrant --zone {{load_vm_zone}}
+      register: gcloud_result
+      until: gcloud_result.rc == 0
+      retries: 10
+      loop: "{{ range(num_vms|int) | list }}"
+      loop_control:
+        loop_var: item
+
+    - name: Refresh inventory
+      meta: refresh_inventory
+
+- name: Provision GCP VM Instances (Install Java and JMeter)
+  hosts: gc_vms # especificado no hosts.inv
+  gather_facts: no
+  roles:
+    - gcp_prov_vms
+
+
+- name: Pause and Delete GCP VM Instances
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Barrier to remind deletion of VMs created
+      pause:
+        seconds: 28800 # 8 hours
+
+    - name: Delete VMS
+      include_role:
+        name: gcp_del_vms
+      loop: "{{ range(num_vms|int) | list }}"
+      loop_control:
+        loop_var: item
+      vars:
+        vm: "vm{{ item }}"
+

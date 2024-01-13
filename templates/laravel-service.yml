@@ -1,0 +1,22 @@
+---
+# Service for exposing Laravel
+apiVersion: v1
+kind: Service
+metadata:
+  name: laravel-service
+  namespace: default
+  labels:
+    app: laravel
+spec:
+  type: LoadBalancer
+  selector:
+    app: laravel
+  ports:
+    - name: http
+      protocol: TCP
+      targetPort: 8000
+      port: 80
+  sessionAffinity: ClientIP 
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 7200 # 2 horas. Specifies the amount of time (in seconds) for which the session affinity is maintained.

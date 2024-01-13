@@ -1,0 +1,61 @@
+---
+# Prep - Colocar IP do APP no jmx login_load
+- name: Alteração do IP destino no ficheiro do JMETER a testar
+  replace:
+    path: "{{ load_file }}"
+    regexp: '<stringProp name="HTTPSampler\.domain">.*?</stringProp>'
+    replace: '<stringProp name="HTTPSampler.domain">{{ app_ip }}</stringProp>'
+
+
+###> Implementing a startdelay period
+# Caso o startdelay não seja definido, o valor por defeito é 0
+- set_fact:
+    startdelay: 0
+
+- name: Set the timeout value for each vm to wait before starting
+  set_fact:
+    startdelay: "{{ (ansible_hostname[-1] | int) * 10 }}"
+  when: rampup == "true"
+  tags: ["rampup"]
+
+# - name: Debug to see the number of seconds each machine will wait
+#   debug:
+#     msg: "{{ startdelay }}"
+#   when: rampup == true
+#   tags: ["rampup"]
+###>
+
+## Load Testing
+- name: Run JMeter script for specified testing
+  command: "{{ jmeter_path }} -n -t {{ load_file }} -Jthreads={{threads}} -Jiters={{iters}} -Jstartdelay={{startdelay}} -l results/results_{{ansible_hostname}}_{{threads}}.jtl -f -e -o results/dashboard_{{ansible_hostname}}_{{threads}}" 
+
+- name: Copy results to localhost
+  fetch:
+    src: results/results_{{ansible_hostname}}_{{threads}}.jtl
+    dest: results/
+    flat: yes
+
+- name: Copy resulting JSON statistics to localhost
+  fetch:
+    src: results/dashboard_{{ansible_hostname}}_{{threads}}/statistics.json
+    dest: results/statistics_{{ansible_hostname}}_{{threads}}.json
+    flat: yes
+
+- name: Merge results with python script
+  command: python3 merger.py 
+  delegate_to: localhost
+
+##! Seria para copiar tudo o que estivesse na pasta results, mas é muito demorado
+# - name: List files to copy
+#   # shell: (cd results; find . -maxdepth 1 -type f) | cut -d'/' -f2
+#   shell: find results -type f
+#   register: files_to_copy
+
+# - debug:
+#     var: files_to_copy.stdout_lines
+    
+# - name: Copy results to localhost
+#   fetch:
+#     src: "{{ item }}"
+#     dest: results/
+#   with_items: "{{ files_to_copy.stdout_lines }}"
