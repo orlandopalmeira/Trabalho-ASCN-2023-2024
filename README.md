@@ -1,6 +1,6 @@
 <img src='EEUM_logo.png' width="30%"/>
 
-<h3 align="center">Mestrado em Engenharia Informática <br> Trabalho prático de Computação Paralela <br> 2023/2024 </h3>
+<h3 align="center">Mestrado em Engenharia Informática <br> Trabalho prático de Aplicações e Serviços de Computação em Nuvem <br> 2023/2024 </h3>
 
 ---
 <h3 align="center"> Colaboradores &#129309 </h2>
